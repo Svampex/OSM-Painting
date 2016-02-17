@@ -1,5 +1,6 @@
-
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.*;
 import javax.swing.*;
@@ -8,10 +9,42 @@ import java.util.*;
 public class View extends JFrame implements Observer {
 	public static final long serialVersionUID = 20160216;
 	Canvas canvas;
-	JPanel leftPanel = new JPanel();
+	JPanel leftPanel;
 	boolean antia = false;
 	Model model;
 	static AffineTransform trans = new AffineTransform();
+
+
+	public View(Model m) {
+		model = m;
+		model.addObserver(this);
+		canvas = new Canvas();
+		setLayout(new BorderLayout());
+		add(canvas, BorderLayout.CENTER);
+		initializeLeftPanel();
+		setSize(512, 512);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setVisible(true);
+		pan(-model.minlon, -model.maxlat);
+		zoom(canvas.getWidth()/Math.max(model.maxlon-model.minlon, model.minlat-model.maxlat),0,0);
+	}
+
+	private void initializeLeftPanel(){
+		leftPanel = new JPanel();
+		leftPanel.setBackground(Colors.panelColor);
+		add(leftPanel, BorderLayout.WEST);
+		JButton btn = new JButton("AA");
+		btn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toggleAA();
+			}
+		});
+		//Disable drawing focus rectangle
+		btn.setFocusPainted(false);
+		btn.setBackground(Colors.buttonHover);
+		 leftPanel.add(btn);
+	}
 
 	public void toggleAA() {
 		antia = !antia;
@@ -41,22 +74,6 @@ public class View extends JFrame implements Observer {
 		repaint();
 	}
 
-	public View(Model m) {
-		model = m;
-		model.addObserver(this);
-		canvas = new Canvas();
-		setLayout(new BorderLayout());
-		getContentPane().add(canvas, BorderLayout.CENTER);
-		getContentPane().add(leftPanel, BorderLayout.WEST);
-		leftPanel.add(new Button("hueue"));
-		pack();
-		setSize(512, 512);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setVisible(true);
-		pan(-model.minlon, -model.maxlat);
-		zoom(canvas.getWidth()/Math.max(model.maxlon-model.minlon, model.minlat-model.maxlat),0,0);
-	}
-
 	class Canvas extends JComponent {
 		public static final long serialVersionUID = 20160216;
 
@@ -64,11 +81,15 @@ public class View extends JFrame implements Observer {
 			Graphics2D g = (Graphics2D) _g;
 			g.setTransform(trans);
 			Rectangle2D bbox = new Rectangle2D.Float(model.minlon, model.maxlat, model.maxlon-model.minlon, model.minlat-model.maxlat);
-			g.setClip(bbox);
+			//g.setClip(bbox);
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
-			g.setColor(new Color(127, 127, 255));
+			g.setColor(new Color(111, 120, 255));
 			for (Shape s : model.water) g.fill(s);
+			g.setColor(new Color(141, 255, 88));
+			for(Shape s : model.park) g.fill(s);
+			g.setColor(new Color(112, 255, 0));
+			for(Shape s : model.grass) g.draw(s);
 			g.setColor(Color.BLACK);
 			for (Shape s : model.road) g.draw(s);
 		}

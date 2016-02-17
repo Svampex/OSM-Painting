@@ -8,13 +8,15 @@ import java.awt.geom.Path2D;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-enum WayType { UNKNOWN, ROAD, WATER }
+enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA }
 
 public class Model extends Observable implements Serializable {
 	public static final long serialVersionUID = 20160217;
 	List<Shape> data = new ArrayList<>();
 	List<Shape> road = new ArrayList<>();
 	List<Shape> water = new ArrayList<>();
+	List<Shape> park = new ArrayList<>();
+	List<Shape> grass = new ArrayList<>();
 	float minlat, minlon, maxlat, maxlon;
 
 	public void dirty() {
@@ -80,7 +82,6 @@ public class Model extends Observable implements Serializable {
 					maxlat = Float.parseFloat(atts.getValue("maxlat"));
 					maxlon = Float.parseFloat(atts.getValue("maxlon"));
 					lonfactor = (float)Math.cos(Math.PI/180*(minlat + (maxlat - minlat)/2));
-					System.out.println(lonfactor);
 					minlat = -minlat;
 					maxlat = -maxlat;
 					minlon *= lonfactor;
@@ -110,6 +111,12 @@ public class Model extends Observable implements Serializable {
 						case "natural":
 							if (atts.getValue("v").equals("water")) type = WayType.WATER;
 							break;
+						case "leisure":
+							if(atts.getValue("v").equals("park")) type = WayType.PARK;
+							break;
+						case "barrier":
+							if(atts.getValue("v").equals("hedge")) type = WayType.GRASS;
+							break;
 					}
 					break;
 				default:
@@ -126,6 +133,12 @@ public class Model extends Observable implements Serializable {
 							break;
 						case WATER:
 							water.add(way);
+							break;
+						case PARK:
+							park.add(way);
+							break;
+						case GRASS:
+							grass.add(way);
 							break;
 						default:
 							//data.add(way);
