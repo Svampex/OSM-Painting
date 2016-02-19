@@ -80,18 +80,21 @@ public class View extends JFrame implements Observer {
 		public void paint(Graphics _g) {
 			Graphics2D g = (Graphics2D) _g;
 			g.setTransform(trans);
-			Rectangle2D bbox = new Rectangle2D.Float(model.minlon, model.maxlat, model.maxlon-model.minlon, model.minlat-model.maxlat);
-			//g.setClip(bbox);
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
-			g.setColor(new Color(111, 120, 255));
-			for (Shape s : model.water) g.fill(s);
-			g.setColor(new Color(141, 255, 88));
-			for(Shape s : model.park) g.fill(s);
-			g.setColor(new Color(112, 255, 0));
-			for(Shape s : model.grass) g.draw(s);
-			g.setColor(Color.BLACK);
-			for (Shape s : model.road) g.draw(s);
+			for(MapPath mp : model.areas){
+				g.setColor(mp.getColor());
+                if(mp.isArea()){
+                    g.fill(mp.getPath());
+                } else {
+                    g.draw(mp.getPath());
+                }
+			}
+
+            for(MapPath mp : model.roads){
+                g.setColor(mp.getColor());
+                g.draw(mp.getPath());
+            }
 		}
 	}
 }

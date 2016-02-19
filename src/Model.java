@@ -8,25 +8,18 @@ import java.awt.geom.Path2D;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA }
+enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA, HEDGE, PLAYGROUND, BUILDING, PARKING }
 
 public class Model extends Observable implements Serializable {
 	public static final long serialVersionUID = 20160217;
 	List<Shape> data = new ArrayList<>();
-	List<Shape> road = new ArrayList<>();
-	List<Shape> water = new ArrayList<>();
-	List<Shape> park = new ArrayList<>();
-	List<Shape> grass = new ArrayList<>();
+	List<MapPath> areas = new ArrayList<>();
+	List<MapPath> roads = new ArrayList<>();
 	float minlat, minlon, maxlat, maxlon;
 
 	public void dirty() {
 		setChanged();
 		notifyObservers();
-	}
-
-	public void add(Shape s) {
-		data.add(s);
-		dirty();
 	}
 
 	public static Model load(String filename) {
@@ -67,7 +60,7 @@ public class Model extends Observable implements Serializable {
 
 	class OSMHandler extends DefaultHandler {
 		Map<Long,Point2D> map = new HashMap<>();
-		Path2D way;
+		MapPath way;
 		WayType type = WayType.UNKNOWN;
 		float lonfactor;
 		public void startDocument() {}
@@ -92,12 +85,13 @@ public class Model extends Observable implements Serializable {
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
 					map.put(id, new Point2D.Float(lon*lonfactor, -lat));
+					System.out.println(id);
 					break;
 				case "nd":
 					id = Long.parseLong(atts.getValue("ref"));
 					Point2D p = map.get(id);
 					if (way == null) {
-						way = new Path2D.Float();
+						way = new MapPath(new Path2D.Float(), WayType.UNKNOWN, false);
 						way.moveTo(p.getX(), p.getY());
 					} else {
 						way.lineTo(p.getX(), p.getY());
@@ -113,35 +107,69 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "leisure":
 							if(atts.getValue("v").equals("park")) type = WayType.PARK;
+							if(atts.getValue("v").equals("playground")) type = WayType.PLAYGROUND;
 							break;
 						case "barrier":
-							if(atts.getValue("v").equals("hedge")) type = WayType.GRASS;
+							if(atts.getValue("v").equals("hedge")) type = WayType.HEDGE;
 							break;
+						case "building":
+							if(atts.getValue("v").equals("yes")) type = WayType.BUILDING;
+							break;
+						case "amenity":
+							if(atts.getValue("v").equals("parking")) type = WayType.PARKING;
+							break;
+						case "area":
+							if(atts.getValue("v").equals("yes")){
+								if(way != null){
+									way.setArea(true);
+								}
+							}
 					}
 					break;
 				default:
 					break;
 			}
 		}
+
 		public void characters(char[] ch, int start, int length) {}
 		public void endElement(String uri, String localName, String qName) {
 			switch (qName) {
 				case "way":
 					switch (type) {
 						case ROAD:
-							road.add(way);
+							way.setType(WayType.ROAD);
+							roads.add(way);
 							break;
 						case WATER:
-							water.add(way);
+							way.setType(WayType.WATER);
+							areas.add(way);
 							break;
 						case PARK:
-							park.add(way);
+							way.setType(WayType.PARK);
+							areas.add(way);
 							break;
 						case GRASS:
-							grass.add(way);
+							way.setType(WayType.GRASS);
+							areas.add(way);
+							break;
+						case HEDGE:
+							way.setType(WayType.HEDGE);
+							areas.add(way);
+							break;
+						case PLAYGROUND:
+							way.setType(WayType.PLAYGROUND);
+							areas.add(way);
+							break;
+						case BUILDING:
+							way.setType(WayType.BUILDING);
+							areas.add(way);
+							break;
+						case PARKING:
+							way.setType(WayType.PARKING);
+							areas.add(way);
 							break;
 						default:
-							//data.add(way);
+							areas.add(way);
 							break;
 					}
 					way = null;

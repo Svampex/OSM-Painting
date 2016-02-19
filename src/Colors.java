@@ -8,9 +8,13 @@ public class Colors {
     public static Color textColor = Color.white;
 
     //MAP COLORS
-    public static Color water = new Color(111, 120, 255);
+    public static Color water = new Color(0, 64, 255);
     public static Color park = new Color(141, 255, 88);
     public static Color grass = new Color(112, 255, 0);
+    public static Color hedge = new Color(0, 200, 20);
     public static Color road = new Color(0,0,0);
-    public static Color sea = new Color(0, 64, 255);
+    public static Color sea = new Color(0, 20, 200);
+    public static Color playground = new Color(111, 120, 255);
+    public static Color building = new Color(255, 160, 81);
+    public static Color parking = new Color(255, 254, 134);
 }
