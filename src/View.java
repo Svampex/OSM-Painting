@@ -82,7 +82,7 @@ public class View extends JFrame implements Observer {
 			g.setTransform(trans);
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
-			for(MapPath mp : model.areas){
+			for(MapPath mp : model.ways.values()){
 				g.setColor(mp.getColor());
                 if(mp.isArea()){
                     g.fill(mp.getPath());
@@ -90,11 +90,6 @@ public class View extends JFrame implements Observer {
                     g.draw(mp.getPath());
                 }
 			}
-
-            for(MapPath mp : model.roads){
-                g.setColor(mp.getColor());
-                g.draw(mp.getPath());
-            }
 		}
 	}
 }

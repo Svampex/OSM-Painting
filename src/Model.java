@@ -8,13 +8,12 @@ import java.awt.geom.Path2D;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA, HEDGE, PLAYGROUND, BUILDING, PARKING }
+enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA, HEDGE, PLAYGROUND, BUILDING, PARKING, RELATION }
 
 public class Model extends Observable implements Serializable {
 	public static final long serialVersionUID = 20160217;
 	List<Shape> data = new ArrayList<>();
-	List<MapPath> areas = new ArrayList<>();
-	List<MapPath> roads = new ArrayList<>();
+	HashMap<Long,MapPath> ways = new HashMap<Long,MapPath>();
 	float minlat, minlon, maxlat, maxlon;
 
 	public void dirty() {
@@ -61,12 +60,15 @@ public class Model extends Observable implements Serializable {
 	class OSMHandler extends DefaultHandler {
 		Map<Long,Point2D> map = new HashMap<>();
 		MapPath way;
+		MapPath relation;
 		WayType type = WayType.UNKNOWN;
+		long wayID;
 		float lonfactor;
 		public void startDocument() {}
 		public void startElement(String uri, String localName, String qName, Attributes atts) {
 			switch (qName) {
 				case "way":
+					wayID = Long.parseLong(atts.getValue("id"));
 					type = WayType.UNKNOWN;
 					break;
 				case "bounds":
@@ -85,7 +87,6 @@ public class Model extends Observable implements Serializable {
 					float lat = Float.parseFloat(atts.getValue("lat"));
 					float lon = Float.parseFloat(atts.getValue("lon"));
 					map.put(id, new Point2D.Float(lon*lonfactor, -lat));
-					System.out.println(id);
 					break;
 				case "nd":
 					id = Long.parseLong(atts.getValue("ref"));
@@ -96,6 +97,19 @@ public class Model extends Observable implements Serializable {
 					} else {
 						way.lineTo(p.getX(), p.getY());
 					}
+					break;
+				case "member":
+					id = Long.parseLong(atts.getValue("ref"));
+					MapPath path = ways.get(id);
+					if(path == null){
+						System.out.println("Missing: "+id);
+					} else {
+						System.out.println("Path: " + path);
+					}
+					if(relation == null){
+						relation = new MapPath(new Path2D.Float(), WayType.UNKNOWN, false);
+					}
+					//relation.getPath().append(path.getPath(), false);
 					break;
 				case "tag":
 					switch (atts.getValue("k")) {
@@ -138,41 +152,44 @@ public class Model extends Observable implements Serializable {
 					switch (type) {
 						case ROAD:
 							way.setType(WayType.ROAD);
-							roads.add(way);
+							ways.put(wayID, way);
 							break;
 						case WATER:
 							way.setType(WayType.WATER);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case PARK:
 							way.setType(WayType.PARK);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case GRASS:
 							way.setType(WayType.GRASS);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case HEDGE:
 							way.setType(WayType.HEDGE);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case PLAYGROUND:
 							way.setType(WayType.PLAYGROUND);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case BUILDING:
 							way.setType(WayType.BUILDING);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						case PARKING:
 							way.setType(WayType.PARKING);
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 						default:
-							areas.add(way);
+							ways.put(wayID, way);
 							break;
 					}
 					way = null;
+					break;
+				case "member":
+
 					break;
 			}
 		}
