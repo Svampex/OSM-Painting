@@ -11,10 +11,10 @@ public class MapPath implements Serializable{
     private Color color;
     private WayType type;
 
-    public MapPath(Path2D _path, WayType _type, boolean _area){
-        path = _path;
-        type = _type;
-        area = _area;
+    public MapPath(){
+        path = new Path2D.Double();
+        type = WayType.UNKNOWN;
+        area = false;
         setColor();
     }
 

@@ -61,6 +61,7 @@ public class Model extends Observable implements Serializable {
 		Map<Long,Point2D> map = new HashMap<>();
 		MapPath way;
 		MapPath relation;
+
 		WayType type = WayType.UNKNOWN;
 		long wayID;
 		float lonfactor;
@@ -92,24 +93,18 @@ public class Model extends Observable implements Serializable {
 					id = Long.parseLong(atts.getValue("ref"));
 					Point2D p = map.get(id);
 					if (way == null) {
-						way = new MapPath(new Path2D.Float(), WayType.UNKNOWN, false);
+						way = new MapPath();
 						way.moveTo(p.getX(), p.getY());
 					} else {
 						way.lineTo(p.getX(), p.getY());
 					}
 					break;
+				case "relation":
+					wayID = Long.parseLong(atts.getValue("id"));
+					relation = new MapPath();
+					break;
 				case "member":
-					id = Long.parseLong(atts.getValue("ref"));
-					MapPath path = ways.get(id);
-					if(path == null){
-						System.out.println("Missing: "+id);
-					} else {
-						System.out.println("Path: " + path);
-					}
-					if(relation == null){
-						relation = new MapPath(new Path2D.Float(), WayType.UNKNOWN, false);
-					}
-					//relation.getPath().append(path.getPath(), false);
+					way = ways.get(Long.parseLong(atts.getValue("ref")));
 					break;
 				case "tag":
 					switch (atts.getValue("k")) {
@@ -118,6 +113,7 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "natural":
 							if (atts.getValue("v").equals("water")) type = WayType.WATER;
+							if(atts.getValue("v").equals("coastline")) type = WayType.UNKNOWN;
 							break;
 						case "leisure":
 							if(atts.getValue("v").equals("park")) type = WayType.PARK;
@@ -138,6 +134,18 @@ public class Model extends Observable implements Serializable {
 									way.setArea(true);
 								}
 							}
+							break;
+						case "surface":
+							if(atts.getValue("v").equals("cobblestone")) type = WayType.UNKNOWN;
+							break;
+						case "type":
+							break;
+						case "except":
+							//type = WayType.UNKNOWN;
+							break;
+						default:
+							type = WayType.UNKNOWN;
+							break;
 					}
 					break;
 				default:
@@ -187,9 +195,19 @@ public class Model extends Observable implements Serializable {
 							break;
 					}
 					way = null;
+					//type = WayType.UNKNOWN;
 					break;
 				case "member":
-
+					if(way != null){
+						System.out.println("Adding path to relation!");
+						relation.getPath().append(way.getPath(), false);
+					}
+					break;
+				case "relation":
+					relation.setType(type);
+					ways.put(wayID, relation);
+					relation = null;
+					//type = WayType.UNKNOWN;
 					break;
 			}
 		}

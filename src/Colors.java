@@ -17,4 +17,5 @@ public class Colors {
     public static Color playground = new Color(111, 120, 255);
     public static Color building = new Color(255, 160, 81);
     public static Color parking = new Color(255, 254, 134);
+    public static Color cobbleStone = new Color(105, 106, 105);
 }
