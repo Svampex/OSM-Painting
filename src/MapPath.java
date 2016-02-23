@@ -36,6 +36,10 @@ public class MapPath implements Serializable{
         setColor();
     }
 
+    public WayType getType(){
+        return type;
+    }
+
     private void setToArea(){
         //Sets the object to be an area only in some cases:
         switch (type){

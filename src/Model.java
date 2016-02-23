@@ -108,6 +108,9 @@ public class Model extends Observable implements Serializable {
 					break;
 				case "tag":
 					switch (atts.getValue("k")) {
+						case "name":
+
+							break;
 						case "highway":
 							type = WayType.ROAD;
 							break;
@@ -146,6 +149,10 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "type":
 							break;
+						case "cycleway":
+							break;
+						case "lit":
+							break;
 						case "religion":
 							break;
 						case "source":
@@ -157,9 +164,6 @@ public class Model extends Observable implements Serializable {
 							//type = WayType.UNKNOWN;
 							break;
 						case "addr:street":
-							//type = WayType.UNKNOWN;
-							break;
-						case "name":
 							//type = WayType.UNKNOWN;
 							break;
 						case "addr:city":

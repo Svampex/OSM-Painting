@@ -86,6 +86,10 @@ public class View extends JFrame implements Observer {
 				g.setColor(mp.getColor());
                 if(mp.isArea()){
                     g.fill(mp.getPath());
+					if(mp.getType() == WayType.BUILDING){
+						g.setColor(Colors.road);
+						g.draw(mp.getPath());
+					}
                 } else {
                     g.draw(mp.getPath());
                 }
