@@ -115,6 +115,9 @@ public class Model extends Observable implements Serializable {
 							if (atts.getValue("v").equals("water")) type = WayType.WATER;
 							if(atts.getValue("v").equals("coastline")) type = WayType.UNKNOWN;
 							break;
+						case "water":
+							if (atts.getValue("v").equals("pond")) type = WayType.WATER;
+							break;
 						case "leisure":
 							if(atts.getValue("v").equals("park")) type = WayType.PARK;
 							if(atts.getValue("v").equals("playground")) type = WayType.PLAYGROUND;
@@ -124,9 +127,12 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "building":
 							if(atts.getValue("v").equals("yes")) type = WayType.BUILDING;
+							if(atts.getValue("v").equals("apartments")) type = WayType.BUILDING;
+							if(atts.getValue("v").equals("church")) type = WayType.BUILDING;
 							break;
 						case "amenity":
 							if(atts.getValue("v").equals("parking")) type = WayType.PARKING;
+							//if(atts.getValue("v").equals("place_of_worship")) type = WayType.BUILDING;
 							break;
 						case "area":
 							if(atts.getValue("v").equals("yes")){
@@ -140,12 +146,53 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "type":
 							break;
+						case "religion":
+							break;
+						case "source":
+							break;
 						case "except":
+							//type = WayType.UNKNOWN;
+							break;
+						case "add:housenumber":
+							//type = WayType.UNKNOWN;
+							break;
+						case "addr:street":
+							//type = WayType.UNKNOWN;
+							break;
+						case "name":
+							//type = WayType.UNKNOWN;
+							break;
+						case "addr:city":
+							//type = WayType.UNKNOWN;
+							break;
+						case "addr:postcode":
+							//type = WayType.UNKNOWN;
+							break;
+						case "source:date":
+							//type = WayType.UNKNOWN;
+							break;
+						case "addr:country":
+							//type = WayType.UNKNOWN;
+							break;
+						case "wikipedia":
+							//type = WayType.UNKNOWN;
+							break;
+						case "landuse":
+							//type = WayType.UNKNOWN;
+							break;
+						case "created_by":
+							//type = WayType.UNKNOWN;
+							break;
+						case "tiger:cfcc":
+							//type = WayType.UNKNOWN;
+							break;
+						case "tiger:country":
 							//type = WayType.UNKNOWN;
 							break;
 						default:
 							type = WayType.UNKNOWN;
 							break;
+						//All tag keys: http://taginfo.openstreetmap.org/keys
 					}
 					break;
 				default:
@@ -206,6 +253,7 @@ public class Model extends Observable implements Serializable {
 				case "relation":
 					relation.setType(type);
 					ways.put(wayID, relation);
+					relation.getPath().setWindingRule(Path2D.WIND_EVEN_ODD);
 					relation = null;
 					//type = WayType.UNKNOWN;
 					break;
