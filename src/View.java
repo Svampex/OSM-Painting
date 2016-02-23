@@ -13,7 +13,7 @@ public class View extends JFrame implements Observer {
 	boolean antia = false;
 	Model model;
 	static AffineTransform trans = new AffineTransform();
-
+	ArrayList<JCheckBox> checkBoxes = new ArrayList<>();
 
 	public View(Model m) {
 		model = m;
@@ -31,6 +31,7 @@ public class View extends JFrame implements Observer {
 
 	private void initializeLeftPanel(){
 		leftPanel = new JPanel();
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
 		leftPanel.setBackground(Colors.panelColor);
 		add(leftPanel, BorderLayout.WEST);
 		JButton btn = new JButton("AA");
@@ -43,7 +44,25 @@ public class View extends JFrame implements Observer {
 		//Disable drawing focus rectangle
 		btn.setFocusPainted(false);
 		btn.setBackground(Colors.buttonHover);
-		 leftPanel.add(btn);
+		leftPanel.add(btn);
+		initializeCheckBoxes();
+	}
+
+	public void initializeCheckBoxes(){
+		for(int x = 0; x < WayType.values().length; x++){
+			JCheckBox box = new JCheckBox(WayType.values()[x].toString());
+			box.setBackground(Colors.panelColor);
+			box.setForeground(Colors.textColor);
+			box.setSelected(true);
+			box.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					repaint();
+				}
+			});
+			leftPanel.add(box);
+			checkBoxes.add(box);
+		}
 	}
 
 	public void toggleAA() {
@@ -82,17 +101,45 @@ public class View extends JFrame implements Observer {
 			g.setTransform(trans);
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
-			for(MapPath mp : model.ways.values()){
-				g.setColor(mp.getColor());
-                if(mp.isArea()){
-                    g.fill(mp.getPath());
-					if(mp.getType() == WayType.BUILDING){
+			for(MapPath mp : model.areas.values()){
+				boolean canDrawShape = false;
+				for(JCheckBox box : checkBoxes){
+					if(mp.getType().toString().equals(box.getText())){
+						if(box.isSelected()){
+							canDrawShape = true;
+						}
+					}
+				}
+				if(canDrawShape) {
+					g.setColor(mp.getColor());
+					g.fill(mp.getPath());
+					if (mp.getType() == WayType.BUILDING) {
 						g.setColor(Colors.road);
 						g.draw(mp.getPath());
 					}
-                } else {
-                    g.draw(mp.getPath());
-                }
+				}
+			}
+			for(MapPath mp : model.ways.values()){
+				boolean canDrawShape = false;
+				for(JCheckBox box : checkBoxes){
+					if(mp.getType().toString().equals(box.getText())){
+						if(box.isSelected()){
+							canDrawShape = true;
+						}
+					}
+				}
+				if(canDrawShape) {
+					g.setColor(mp.getColor());
+					if (mp.isArea()) {
+						g.fill(mp.getPath());
+						if (mp.getType() == WayType.BUILDING) {
+							g.setColor(Colors.road);
+							g.draw(mp.getPath());
+						}
+					} else {
+						g.draw(mp.getPath());
+					}
+				}
 			}
 		}
 	}

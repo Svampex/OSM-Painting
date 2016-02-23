@@ -8,11 +8,13 @@ import java.awt.geom.Path2D;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA, HEDGE, PLAYGROUND, BUILDING, PARKING, RELATION }
+enum WayType { UNKNOWN, ROAD, WATER, PARK, GRASS, SEA, HEDGE, PLAYGROUND, BUILDING, PARKING, PEDESTRIAN, BROWNFIELD, UNIVERSITY, COASTLINE, SUBWAY, WALL, RESIDENTIAL, CEMETERY }
+enum Surface { NONE, COBBLESTONE}
 
 public class Model extends Observable implements Serializable {
 	public static final long serialVersionUID = 20160217;
 	List<Shape> data = new ArrayList<>();
+	HashMap<Long, MapPath> areas = new HashMap<>();
 	HashMap<Long,MapPath> ways = new HashMap<Long,MapPath>();
 	float minlat, minlon, maxlat, maxlon;
 
@@ -109,14 +111,34 @@ public class Model extends Observable implements Serializable {
 				case "tag":
 					switch (atts.getValue("k")) {
 						case "name":
-
 							break;
 						case "highway":
 							type = WayType.ROAD;
+							switch (atts.getValue("v")){
+								case "pedestrian":
+									type = WayType.PEDESTRIAN;
+									break;
+								case "footway":
+									type = WayType.PEDESTRIAN;
+									break;
+								case "residential":
+									type = WayType.ROAD;
+									break;
+								case "tertiary":
+									type = WayType.ROAD;
+									break;
+							}
 							break;
 						case "natural":
-							if (atts.getValue("v").equals("water")) type = WayType.WATER;
-							if(atts.getValue("v").equals("coastline")) type = WayType.UNKNOWN;
+							switch (atts.getValue("v")){
+								case "water":
+									type = WayType.WATER;
+									break;
+								case "coastline":
+									type = WayType.COASTLINE;
+									//System.out.println("COASTLINE");
+									break;
+							}
 							break;
 						case "water":
 							if (atts.getValue("v").equals("pond")) type = WayType.WATER;
@@ -127,15 +149,37 @@ public class Model extends Observable implements Serializable {
 							break;
 						case "barrier":
 							if(atts.getValue("v").equals("hedge")) type = WayType.HEDGE;
+							if(atts.getValue("v").equals("wall")) type = WayType.WALL;
+							if(atts.getValue("v").equals("gate")) type = WayType.WALL;
+							if(atts.getValue("v").equals("fence")) type = WayType.WALL;
 							break;
 						case "building":
+							type = WayType.BUILDING;
+							/*
 							if(atts.getValue("v").equals("yes")) type = WayType.BUILDING;
 							if(atts.getValue("v").equals("apartments")) type = WayType.BUILDING;
 							if(atts.getValue("v").equals("church")) type = WayType.BUILDING;
+							if(atts.getValue("v").equals("residential")) type = WayType.BUILDING;
+							if(atts.getValue("v").equals("garages")) type = WayType.BUILDING;
+							*/
 							break;
 						case "amenity":
-							if(atts.getValue("v").equals("parking")) type = WayType.PARKING;
-							//if(atts.getValue("v").equals("place_of_worship")) type = WayType.BUILDING;
+							switch (atts.getValue("v")){
+								case "parking":
+									type = WayType.PARKING;
+									break;
+								case "place_of_worship":
+									type = WayType.BUILDING;
+									break;
+								case "arts_centre":
+									type = WayType.BUILDING;
+									break;
+								case "university":
+									type = WayType.UNIVERSITY;
+									type = WayType.UNIVERSITY;
+									break;
+
+							}
 							break;
 						case "area":
 							if(atts.getValue("v").equals("yes")){
@@ -144,10 +188,59 @@ public class Model extends Observable implements Serializable {
 								}
 							}
 							break;
+						case "place":
+							switch (atts.getValue("v")){
+								case "island":
+									break;
+							}
+							break;
+						case "railway":
+							switch (atts.getValue("v")){
+								case "subway":
+									type = WayType.SUBWAY;
+									break;
+							}
+							break;
+						case "route_master":
+							switch (atts.getValue("v")){
+								case "subway":
+									type = WayType.SUBWAY;
+									break;
+							}
+							break;
+						case "route":
+							switch (atts.getValue("v")){
+								case "subway":
+									type = WayType.SUBWAY;
+									break;
+								default:
+									type = WayType.ROAD;
+									break;
+							}
+							break;
 						case "surface":
-							if(atts.getValue("v").equals("cobblestone")) type = WayType.UNKNOWN;
+							switch (atts.getValue("v")){
+								case "cobblestone":
+									type = WayType.PEDESTRIAN;
+									break;
+								case "asphalt":
+									type = WayType.ROAD;
+									break;
+							}
 							break;
 						case "type":
+							switch (atts.getValue("v")){
+								case "multipolygon":
+									if(way != null){
+										//System.out.println(type + ", ID: " + wayID);
+										way.setArea(true);
+									}
+									break;
+							}
+							break;
+						case "ref":
+							break;
+						case "website":
 							break;
 						case "cycleway":
 							break;
@@ -182,19 +275,30 @@ public class Model extends Observable implements Serializable {
 							//type = WayType.UNKNOWN;
 							break;
 						case "landuse":
-							//type = WayType.UNKNOWN;
-							break;
-						case "created_by":
-							//type = WayType.UNKNOWN;
-							break;
-						case "tiger:cfcc":
-							//type = WayType.UNKNOWN;
-							break;
-						case "tiger:country":
-							//type = WayType.UNKNOWN;
+							switch (atts.getValue("v")){
+								case "brownfield":
+									type = WayType.BROWNFIELD;
+									break;
+								case "allotments":
+									type = WayType.BROWNFIELD;
+									break;
+								case "grass":
+									type = WayType.GRASS;
+									break;
+								case "residential":
+									type = WayType.RESIDENTIAL;
+									break;
+								case "industrial":
+									//Make a new type?
+									type = WayType.RESIDENTIAL;
+									break;
+								case "cemetery":
+									type = WayType.CEMETERY;
+									break;
+							}
 							break;
 						default:
-							type = WayType.UNKNOWN;
+							//type = WayType.UNKNOWN;
 							break;
 						//All tag keys: http://taginfo.openstreetmap.org/keys
 					}
@@ -208,57 +312,32 @@ public class Model extends Observable implements Serializable {
 		public void endElement(String uri, String localName, String qName) {
 			switch (qName) {
 				case "way":
-					switch (type) {
-						case ROAD:
-							way.setType(WayType.ROAD);
-							ways.put(wayID, way);
-							break;
-						case WATER:
-							way.setType(WayType.WATER);
-							ways.put(wayID, way);
-							break;
-						case PARK:
-							way.setType(WayType.PARK);
-							ways.put(wayID, way);
-							break;
-						case GRASS:
-							way.setType(WayType.GRASS);
-							ways.put(wayID, way);
-							break;
-						case HEDGE:
-							way.setType(WayType.HEDGE);
-							ways.put(wayID, way);
-							break;
-						case PLAYGROUND:
-							way.setType(WayType.PLAYGROUND);
-							ways.put(wayID, way);
-							break;
-						case BUILDING:
-							way.setType(WayType.BUILDING);
-							ways.put(wayID, way);
-							break;
-						case PARKING:
-							way.setType(WayType.PARKING);
-							ways.put(wayID, way);
-							break;
-						default:
-							ways.put(wayID, way);
-							break;
+					way.setType(type);
+					if(way.isArea()){
+						areas.put(wayID, way);
+					} else {
+						ways.put(wayID, way);
 					}
 					way = null;
-					//type = WayType.UNKNOWN;
-					break;
 				case "member":
 					if(way != null){
-						System.out.println("Adding path to relation!");
+						//System.out.println("Adding path to relation!");
 						relation.getPath().append(way.getPath(), false);
+						ways.values().remove(way);
 					}
 					break;
 				case "relation":
 					relation.setType(type);
-					ways.put(wayID, relation);
 					relation.getPath().setWindingRule(Path2D.WIND_EVEN_ODD);
+					if(relation.isArea()){
+						areas.put(wayID, relation);
+					}else{
+						ways.put(wayID, relation);
+					}
 					relation = null;
+					type = WayType.UNKNOWN;
+					break;
+				default:
 					//type = WayType.UNKNOWN;
 					break;
 			}

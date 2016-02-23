@@ -18,4 +18,11 @@ public class Colors {
     public static Color building = new Color(255, 160, 81);
     public static Color parking = new Color(255, 254, 134);
     public static Color cobbleStone = new Color(105, 106, 105);
+    public static Color pedestrian = new Color(98, 83, 255);
+    public static Color brownfield = new Color(127, 95, 42);
+    public static Color univeristy = new Color(246, 255, 193);
+    public static Color coastline = new Color(157, 0, 255);
+    public static Color subway = new Color(54, 54, 54);
+    public static Color residential = new Color(183, 183, 183);
+    public static Color cemetery = new Color(0, 70, 8);
 }

@@ -64,6 +64,21 @@ public class MapPath implements Serializable{
             case PARKING:
                 area = true;
                 break;
+            case UNIVERSITY:
+                //area = true;
+                break;
+            case BROWNFIELD:
+                area = true;
+                break;
+            case CEMETERY:
+                area = true;
+                break;
+            case RESIDENTIAL:
+                //area = true;
+                break;
+            default:
+                area = false;
+                break;
         }
     }
 
@@ -96,6 +111,30 @@ public class MapPath implements Serializable{
             case PARKING:
                 color = Colors.parking;
                 break;
+            case PEDESTRIAN:
+                color = Colors.pedestrian;
+                break;
+            case BROWNFIELD:
+                color = Colors.brownfield;
+                break;
+            case UNIVERSITY:
+                color = Colors.univeristy;
+                break;
+            case COASTLINE:
+                color = Colors.coastline;
+                break;
+            case SUBWAY:
+                color = Colors.subway;
+                break;
+            case WALL:
+                color = Colors.cobbleStone;
+                break;
+            case RESIDENTIAL:
+                color = Colors.residential;
+                break;
+            case CEMETERY:
+                color = Colors.cemetery;
+                break;
             case UNKNOWN:
                 color = Color.RED;
                 break;
@@ -113,5 +152,6 @@ public class MapPath implements Serializable{
     public Color getColor(){
         return color;
     }
+
 
 }
