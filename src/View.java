@@ -14,6 +14,7 @@ public class View extends JFrame implements Observer {
 	Model model;
 	static AffineTransform trans = new AffineTransform();
 	ArrayList<JCheckBox> checkBoxes = new ArrayList<>();
+	ArrayList<MapPath> allShapes = new ArrayList<>();
 
 	public View(Model m) {
 		model = m;
@@ -27,6 +28,8 @@ public class View extends JFrame implements Observer {
 		setVisible(true);
 		pan(-model.minlon, -model.maxlat);
 		zoom(canvas.getWidth()/Math.max(model.maxlon-model.minlon, model.minlat-model.maxlat),0,0);
+		allShapes.addAll(model.ways.values());
+		allShapes.addAll(model.areas.values());
 	}
 
 	private void initializeLeftPanel(){
@@ -63,6 +66,9 @@ public class View extends JFrame implements Observer {
 			leftPanel.add(box);
 			checkBoxes.add(box);
 		}
+	}
+
+	public void filter(){
 	}
 
 	public void toggleAA() {
@@ -102,21 +108,11 @@ public class View extends JFrame implements Observer {
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
 			for(MapPath mp : model.areas.values()){
-				boolean canDrawShape = false;
-				for(JCheckBox box : checkBoxes){
-					if(mp.getType().toString().equals(box.getText())){
-						if(box.isSelected()){
-							canDrawShape = true;
-						}
-					}
-				}
-				if(canDrawShape) {
-					g.setColor(mp.getColor());
-					g.fill(mp.getPath());
-					if (mp.getType() == WayType.BUILDING) {
-						g.setColor(Colors.road);
-						g.draw(mp.getPath());
-					}
+				g.setColor(mp.getColor());
+				g.fill(mp.getPath());
+				if (mp.getType() == WayType.BUILDING) {
+					g.setColor(Colors.road);
+					g.draw(mp.getPath());
 				}
 			}
 			for(MapPath mp : model.ways.values()){

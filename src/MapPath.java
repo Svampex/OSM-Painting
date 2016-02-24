@@ -10,6 +10,7 @@ public class MapPath implements Serializable{
     private boolean area;
     private Color color;
     private WayType type;
+    public boolean canDraw = true;
 
     public MapPath(){
         path = new Path2D.Double();
