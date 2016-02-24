@@ -323,7 +323,7 @@ public class Model extends Observable implements Serializable {
 					if(way != null){
 						//System.out.println("Adding path to relation!");
 						relation.getPath().append(way.getPath(), false);
-						ways.values().remove(way);
+						//ways.values().remove(way);
 					}
 					break;
 				case "relation":

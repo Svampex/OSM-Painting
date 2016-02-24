@@ -60,6 +60,7 @@ public class View extends JFrame implements Observer {
 			box.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					filter(WayType.valueOf(box.getText()));
 					repaint();
 				}
 			});
@@ -68,7 +69,12 @@ public class View extends JFrame implements Observer {
 		}
 	}
 
-	public void filter(){
+	public void filter(WayType type){
+		for(MapPath mp : allShapes){
+			if(mp.getType() == type){
+				mp.setDraw(!mp.canDraw);
+			}
+		}
 	}
 
 	public void toggleAA() {
@@ -108,23 +114,17 @@ public class View extends JFrame implements Observer {
 			if (antia) g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setStroke(new BasicStroke(Float.MIN_VALUE));
 			for(MapPath mp : model.areas.values()){
-				g.setColor(mp.getColor());
-				g.fill(mp.getPath());
-				if (mp.getType() == WayType.BUILDING) {
-					g.setColor(Colors.road);
-					g.draw(mp.getPath());
+				if(mp.canDraw){
+					g.setColor(mp.getColor());
+					g.fill(mp.getPath());
+					if (mp.getType() == WayType.BUILDING) {
+						g.setColor(Colors.road);
+						g.draw(mp.getPath());
+					}
 				}
 			}
 			for(MapPath mp : model.ways.values()){
-				boolean canDrawShape = false;
-				for(JCheckBox box : checkBoxes){
-					if(mp.getType().toString().equals(box.getText())){
-						if(box.isSelected()){
-							canDrawShape = true;
-						}
-					}
-				}
-				if(canDrawShape) {
+				if(mp.canDraw){
 					g.setColor(mp.getColor());
 					if (mp.isArea()) {
 						g.fill(mp.getPath());
@@ -136,6 +136,7 @@ public class View extends JFrame implements Observer {
 						g.draw(mp.getPath());
 					}
 				}
+
 			}
 		}
 	}

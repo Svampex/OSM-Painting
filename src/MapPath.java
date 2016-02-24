@@ -35,6 +35,15 @@ public class MapPath implements Serializable{
         type = t;
         setToArea();
         setColor();
+        setDraw(true);
+    }
+
+    public void setDraw(boolean t){
+        if(!(type == WayType.UNKNOWN)){
+            canDraw = t;
+        } else{
+            canDraw = false;
+        }
     }
 
     public WayType getType(){
